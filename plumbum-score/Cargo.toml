@@ -1,0 +1,8 @@
+[package]
+name = "plumbum-score"
+version.workspace = true
+edition.workspace = true
+description = "Composite scoring engine with SA-calibrated weights for Plumbum"
+
+[dependencies]
+plumbum-core = { path = "../plumbum-core" }

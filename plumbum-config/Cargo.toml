@@ -1,0 +1,7 @@
+[package]
+name = "plumbum-config"
+version.workspace = true
+edition.workspace = true
+description = "HCL-style configuration parser for Plumbum"
+
+[dependencies]

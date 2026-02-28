@@ -1,0 +1,10 @@
+[package]
+name = "plumbum-store"
+version.workspace = true
+edition.workspace = true
+description = "SQLite persistence layer for Plumbum"
+
+[dependencies]
+plumbum-core = { path = "../plumbum-core" }
+plumbum-score = { path = "../plumbum-score" }
+rusqlite = { version = "0.31", features = ["bundled"] }

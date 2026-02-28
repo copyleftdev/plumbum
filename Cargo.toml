@@ -1,0 +1,16 @@
+[workspace]
+resolver = "2"
+members = [
+    "plumbum-core",
+    "plumbum-score",
+    "plumbum-store",
+    "plumbum-config",
+    "plumbum-cli",
+    "plumbum-tui",
+    "plumbum-mcp",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"

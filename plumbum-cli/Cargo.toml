@@ -1,0 +1,17 @@
+[package]
+name = "plumbum-cli"
+version.workspace = true
+edition.workspace = true
+description = "CLI binary for Plumbum DNS analysis engine"
+
+[[bin]]
+name = "plumbum"
+path = "src/main.rs"
+
+[dependencies]
+plumbum-core = { path = "../plumbum-core" }
+plumbum-score = { path = "../plumbum-score" }
+plumbum-store = { path = "../plumbum-store" }
+plumbum-config = { path = "../plumbum-config" }
+plumbum-tui = { path = "../plumbum-tui" }
+clap = { version = "4", features = ["derive"] }

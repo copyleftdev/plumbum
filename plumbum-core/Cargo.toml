@@ -1,0 +1,7 @@
+[package]
+name = "plumbum-core"
+version.workspace = true
+edition.workspace = true
+description = "DNS parsing, feature extraction, and wire-format types for Plumbum"
+
+[dependencies]
