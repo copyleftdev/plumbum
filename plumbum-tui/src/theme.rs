@@ -14,7 +14,9 @@ impl Theme {
     }
 
     pub fn high() -> Style {
-        Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD)
+        Style::default()
+            .fg(Color::Yellow)
+            .add_modifier(Modifier::BOLD)
     }
 
     pub fn medium() -> Style {
@@ -35,7 +37,9 @@ impl Theme {
     }
 
     pub fn header() -> Style {
-        Style::default().fg(Color::White).add_modifier(Modifier::BOLD)
+        Style::default()
+            .fg(Color::White)
+            .add_modifier(Modifier::BOLD)
     }
 
     pub fn label() -> Style {

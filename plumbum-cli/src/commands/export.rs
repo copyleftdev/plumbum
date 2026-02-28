@@ -12,21 +12,30 @@ pub fn run(format: &str, output: Option<&Path>) -> Result<(), Box<dyn std::error
 
     let domains = plumbum_store::query::get_scored_domains(&conn, run_id)?;
 
-    let out_path = output.map(|p| p.to_path_buf()).unwrap_or_else(|| {
-        Path::new(&format!("plumbum-export.{}", format)).to_path_buf()
-    });
+    let out_path = output
+        .map(|p| p.to_path_buf())
+        .unwrap_or_else(|| Path::new(&format!("plumbum-export.{}", format)).to_path_buf());
 
     match format {
         "json" => {
             plumbum_store::artifact::write_domains_json(&out_path, &domains)?;
-            println!("Exported {} domains to {}", domains.len(), out_path.display());
+            println!(
+                "Exported {} domains to {}",
+                domains.len(),
+                out_path.display()
+            );
         }
         "csv" => {
             plumbum_store::artifact::write_domains_csv(&out_path, &domains)?;
-            println!("Exported {} domains to {}", domains.len(), out_path.display());
+            println!(
+                "Exported {} domains to {}",
+                domains.len(),
+                out_path.display()
+            );
         }
         "sigma" => {
-            let critical: Vec<_> = domains.iter()
+            let critical: Vec<_> = domains
+                .iter()
                 .filter(|d| d.severity == "CRITICAL" || d.severity == "HIGH")
                 .collect();
             let mut sigma = String::new();
@@ -44,7 +53,11 @@ pub fn run(format: &str, output: Option<&Path>) -> Result<(), Box<dyn std::error
             sigma.push_str("  condition: selection\n");
             sigma.push_str("level: high\n");
             std::fs::write(&out_path, &sigma)?;
-            println!("Exported {} flagged domains as Sigma rule to {}", critical.len(), out_path.display());
+            println!(
+                "Exported {} flagged domains as Sigma rule to {}",
+                critical.len(),
+                out_path.display()
+            );
         }
         _ => return Err(format!("Unknown format: {} (use json, csv, or sigma)", format).into()),
     }

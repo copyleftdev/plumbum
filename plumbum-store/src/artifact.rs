@@ -1,7 +1,7 @@
 //! Run artifact I/O (JSON export of features, summary, etc.)
 
-use std::path::Path;
 use std::io::Write;
+use std::path::Path;
 
 use crate::query::{DomainScoreRow, RunSummary};
 
@@ -19,8 +19,12 @@ pub fn write_summary_json(path: &Path, summary: &RunSummary) -> std::io::Result<
             "  \"medium\": {}\n",
             "}}\n"
         ),
-        summary.run_id, summary.total_records, summary.txt_records,
-        summary.domain_count, summary.critical_count, summary.high_count,
+        summary.run_id,
+        summary.total_records,
+        summary.txt_records,
+        summary.domain_count,
+        summary.critical_count,
+        summary.high_count,
         summary.medium_count,
     );
     let mut f = std::fs::File::create(path)?;
@@ -52,8 +56,14 @@ pub fn write_domains_csv(path: &Path, domains: &[DomainScoreRow]) -> std::io::Re
     for d in domains {
         let line = format!(
             "{},{:.1},{},{:.3},{:.3},{},{},{}\n",
-            d.domain, d.composite_score, d.severity,
-            d.mean_entropy, d.cv, d.query_count, d.client_count, d.subdomain_count,
+            d.domain,
+            d.composite_score,
+            d.severity,
+            d.mean_entropy,
+            d.cv,
+            d.query_count,
+            d.client_count,
+            d.subdomain_count,
         );
         f.write_all(line.as_bytes())?;
     }

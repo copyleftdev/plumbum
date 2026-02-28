@@ -2,8 +2,8 @@
 //!
 //! plumbum <command> [arguments] [flags]
 
-use std::path::PathBuf;
 use clap::{Parser, Subcommand};
+use std::path::PathBuf;
 
 mod commands;
 
@@ -94,11 +94,15 @@ fn main() {
         Commands::Init => commands::init::run(),
         Commands::Validate { paths } => commands::validate::run(&paths),
         Commands::Plan { paths } => commands::plan::run(&paths),
-        Commands::Apply { paths, c2_domains, weights } => {
-            commands::apply::run(&paths, &c2_domains, &weights)
-        }
+        Commands::Apply {
+            paths,
+            c2_domains,
+            weights,
+        } => commands::apply::run(&paths, &c2_domains, &weights),
         Commands::Show { domain } => commands::show::run(&domain),
-        Commands::Explain { domain, feature } => commands::explain::run(&domain, feature.as_deref()),
+        Commands::Explain { domain, feature } => {
+            commands::explain::run(&domain, feature.as_deref())
+        }
         Commands::Export { format, output } => commands::export::run(&format, output.as_deref()),
         Commands::Dashboard => commands::dashboard::run(),
         Commands::Version => {

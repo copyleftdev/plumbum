@@ -64,16 +64,31 @@ impl Weights {
 
     /// Construct from an HCL config or custom values.
     pub fn custom(
-        entropy: f64, periodicity: f64, volume: f64,
-        length: f64, client_rarity: f64, subdomain_diversity: f64,
+        entropy: f64,
+        periodicity: f64,
+        volume: f64,
+        length: f64,
+        client_rarity: f64,
+        subdomain_diversity: f64,
     ) -> Self {
-        Self { entropy, periodicity, volume, length, client_rarity, subdomain_diversity }
+        Self {
+            entropy,
+            periodicity,
+            volume,
+            length,
+            client_rarity,
+            subdomain_diversity,
+        }
     }
 
     /// Sum of all weights (for normalization).
     pub fn total(&self) -> f64 {
-        self.entropy + self.periodicity + self.volume
-            + self.length + self.client_rarity + self.subdomain_diversity
+        self.entropy
+            + self.periodicity
+            + self.volume
+            + self.length
+            + self.client_rarity
+            + self.subdomain_diversity
     }
 
     /// Return weights as a named slice for iteration.

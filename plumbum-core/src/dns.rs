@@ -175,8 +175,7 @@ impl fmt::Display for ParseStats {
         write!(
             f,
             "packets={} dns={} responses={} txt={} errors={}",
-            self.total_packets, self.dns_records, self.responses,
-            self.txt_records, self.errors
+            self.total_packets, self.dns_records, self.responses, self.txt_records, self.errors
         )
     }
 }

@@ -1,14 +1,11 @@
 //! Batch record ingestion into SQLite.
 
-use rusqlite::{Connection, Result, params};
 use plumbum_core::dns::DnsRecord;
+use rusqlite::{params, Connection, Result};
 
 /// Create a new run and return its ID.
 pub fn create_run(conn: &Connection, sources: &str) -> Result<i64> {
-    conn.execute(
-        "INSERT INTO runs (sources) VALUES (?1)",
-        [sources],
-    )?;
+    conn.execute("INSERT INTO runs (sources) VALUES (?1)", [sources])?;
     Ok(conn.last_insert_rowid())
 }
 
@@ -31,18 +28,19 @@ pub fn insert_records(conn: &Connection, run_id: i64, records: &[DnsRecord]) -> 
         )?;
 
         for rec in records {
-            let answers_json = if rec.answers.is_empty() {
-                None
-            } else {
-                let answers: Vec<String> = rec.answers.iter().map(|a| {
+            let answers_json =
+                if rec.answers.is_empty() {
+                    None
+                } else {
+                    let answers: Vec<String> = rec.answers.iter().map(|a| {
                     format!("{{\"rtype\":{},\"rtype_name\":\"{}\",\"rdata\":\"{}\",\"ttl\":{}}}",
                         a.rtype,
                         a.rtype_name.replace('\"', "\\\""),
                         a.rdata.replace('\"', "\\\""),
                         a.ttl)
                 }).collect();
-                Some(format!("[{}]", answers.join(",")))
-            };
+                    Some(format!("[{}]", answers.join(",")))
+                };
 
             stmt.execute(params![
                 run_id,

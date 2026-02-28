@@ -41,12 +41,54 @@ pub fn score_domain(features: &DomainFeatures, weights: &Weights) -> ScoredDomai
     let total = weights.total();
 
     let contributions = [
-        ("entropy", if total > 0.0 { features.entropy_norm * weights.entropy / total * 100.0 } else { 0.0 }),
-        ("periodicity", if total > 0.0 { features.periodicity_norm * weights.periodicity / total * 100.0 } else { 0.0 }),
-        ("volume", if total > 0.0 { features.volume_norm * weights.volume / total * 100.0 } else { 0.0 }),
-        ("length", if total > 0.0 { features.length_norm * weights.length / total * 100.0 } else { 0.0 }),
-        ("client_rarity", if total > 0.0 { features.client_rarity_norm * weights.client_rarity / total * 100.0 } else { 0.0 }),
-        ("subdomain_div", if total > 0.0 { features.subdomain_diversity_norm * weights.subdomain_diversity / total * 100.0 } else { 0.0 }),
+        (
+            "entropy",
+            if total > 0.0 {
+                features.entropy_norm * weights.entropy / total * 100.0
+            } else {
+                0.0
+            },
+        ),
+        (
+            "periodicity",
+            if total > 0.0 {
+                features.periodicity_norm * weights.periodicity / total * 100.0
+            } else {
+                0.0
+            },
+        ),
+        (
+            "volume",
+            if total > 0.0 {
+                features.volume_norm * weights.volume / total * 100.0
+            } else {
+                0.0
+            },
+        ),
+        (
+            "length",
+            if total > 0.0 {
+                features.length_norm * weights.length / total * 100.0
+            } else {
+                0.0
+            },
+        ),
+        (
+            "client_rarity",
+            if total > 0.0 {
+                features.client_rarity_norm * weights.client_rarity / total * 100.0
+            } else {
+                0.0
+            },
+        ),
+        (
+            "subdomain_div",
+            if total > 0.0 {
+                features.subdomain_diversity_norm * weights.subdomain_diversity / total * 100.0
+            } else {
+                0.0
+            },
+        ),
     ];
 
     ScoredDomain {
@@ -60,15 +102,13 @@ pub fn score_domain(features: &DomainFeatures, weights: &Weights) -> ScoredDomai
 }
 
 /// Score and rank a batch of domains. Returns sorted descending by score.
-pub fn score_and_rank(
-    features: &[DomainFeatures],
-    weights: &Weights,
-) -> Vec<ScoredDomain> {
-    let mut scored: Vec<ScoredDomain> = features
-        .iter()
-        .map(|f| score_domain(f, weights))
-        .collect();
-    scored.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap_or(std::cmp::Ordering::Equal));
+pub fn score_and_rank(features: &[DomainFeatures], weights: &Weights) -> Vec<ScoredDomain> {
+    let mut scored: Vec<ScoredDomain> = features.iter().map(|f| score_domain(f, weights)).collect();
+    scored.sort_by(|a, b| {
+        b.score
+            .partial_cmp(&a.score)
+            .unwrap_or(std::cmp::Ordering::Equal)
+    });
     scored
 }
 
@@ -79,23 +119,35 @@ mod tests {
     #[test]
     fn test_composite_score_basic() {
         let features = DomainFeatures {
-            domain: "test.com".into(), is_c2: false,
-            entropy_norm: 1.0, periodicity_norm: 1.0,
-            volume_norm: 1.0, length_norm: 1.0,
-            client_rarity_norm: 1.0, subdomain_diversity_norm: 1.0,
+            domain: "test.com".into(),
+            is_c2: false,
+            entropy_norm: 1.0,
+            periodicity_norm: 1.0,
+            volume_norm: 1.0,
+            length_norm: 1.0,
+            client_rarity_norm: 1.0,
+            subdomain_diversity_norm: 1.0,
         };
         let weights = Weights::default();
         let score = composite_score(&features, &weights);
-        assert!((score - 100.0).abs() < 0.01, "all-ones should score 100, got {}", score);
+        assert!(
+            (score - 100.0).abs() < 0.01,
+            "all-ones should score 100, got {}",
+            score
+        );
     }
 
     #[test]
     fn test_composite_score_zero() {
         let features = DomainFeatures {
-            domain: "zero.com".into(), is_c2: false,
-            entropy_norm: 0.0, periodicity_norm: 0.0,
-            volume_norm: 0.0, length_norm: 0.0,
-            client_rarity_norm: 0.0, subdomain_diversity_norm: 0.0,
+            domain: "zero.com".into(),
+            is_c2: false,
+            entropy_norm: 0.0,
+            periodicity_norm: 0.0,
+            volume_norm: 0.0,
+            length_norm: 0.0,
+            client_rarity_norm: 0.0,
+            subdomain_diversity_norm: 0.0,
         };
         let score = composite_score(&features, &Weights::default());
         assert!(score.abs() < 0.01);
@@ -105,16 +157,24 @@ mod tests {
     fn test_score_and_rank() {
         let feats = vec![
             DomainFeatures {
-                domain: "low.com".into(), is_c2: false,
-                entropy_norm: 0.1, periodicity_norm: 0.1,
-                volume_norm: 0.1, length_norm: 0.1,
-                client_rarity_norm: 0.1, subdomain_diversity_norm: 0.0,
+                domain: "low.com".into(),
+                is_c2: false,
+                entropy_norm: 0.1,
+                periodicity_norm: 0.1,
+                volume_norm: 0.1,
+                length_norm: 0.1,
+                client_rarity_norm: 0.1,
+                subdomain_diversity_norm: 0.0,
             },
             DomainFeatures {
-                domain: "high.com".into(), is_c2: true,
-                entropy_norm: 0.9, periodicity_norm: 0.9,
-                volume_norm: 0.9, length_norm: 0.9,
-                client_rarity_norm: 0.9, subdomain_diversity_norm: 0.9,
+                domain: "high.com".into(),
+                is_c2: true,
+                entropy_norm: 0.9,
+                periodicity_norm: 0.9,
+                volume_norm: 0.9,
+                length_norm: 0.9,
+                client_rarity_norm: 0.9,
+                subdomain_diversity_norm: 0.9,
             },
         ];
         let ranked = score_and_rank(&feats, &Weights::default());

@@ -1,4 +1,4 @@
-pub mod schema;
+pub mod artifact;
 pub mod ingest;
 pub mod query;
-pub mod artifact;
+pub mod schema;

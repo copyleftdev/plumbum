@@ -80,13 +80,15 @@ pub fn handle_request(input: &str) -> String {
         }
 
         "tools/call" => {
-            let tool_name = parsed.pointer("/params/name")
+            let tool_name = parsed
+                .pointer("/params/name")
                 .and_then(|n| n.as_str())
                 .unwrap_or("");
 
             match tool_name {
                 "plumbum_explain" => {
-                    let domain = parsed.pointer("/params/arguments/domain")
+                    let domain = parsed
+                        .pointer("/params/arguments/domain")
                         .and_then(|d| d.as_str())
                         .unwrap_or("unknown");
                     let result = json!({
@@ -110,9 +112,7 @@ pub fn handle_request(input: &str) -> String {
             }
         }
 
-        "notifications/initialized" | "ping" => {
-            json_result(id, json!({}))
-        }
+        "notifications/initialized" | "ping" => json_result(id, json!({})),
 
         _ => json_error(id, -32601, &format!("Method not found: {}", method)),
     }
@@ -123,7 +123,8 @@ fn json_result(id: Option<Value>, result: Value) -> String {
         "jsonrpc": "2.0",
         "id": id.unwrap_or(Value::Null),
         "result": result
-    }).to_string()
+    })
+    .to_string()
 }
 
 fn json_error(id: Option<Value>, code: i64, message: &str) -> String {
@@ -131,7 +132,8 @@ fn json_error(id: Option<Value>, code: i64, message: &str) -> String {
         "jsonrpc": "2.0",
         "id": id.unwrap_or(Value::Null),
         "error": { "code": code, "message": message }
-    }).to_string()
+    })
+    .to_string()
 }
 
 #[cfg(test)]

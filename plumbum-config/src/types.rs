@@ -1,7 +1,7 @@
 //! Configuration types for Plumbum.
 
 /// Top-level Plumbum configuration.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct PlumbumConfig {
     pub analysis: AnalysisConfig,
     pub thresholds: ThresholdConfig,
@@ -29,7 +29,7 @@ pub struct ThresholdConfig {
 }
 
 /// Input source configuration.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct InputConfig {
     pub paths: Vec<String>,
     pub c2_domains: Vec<String>,

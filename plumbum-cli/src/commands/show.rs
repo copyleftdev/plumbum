@@ -20,8 +20,14 @@ pub fn run(domain: &str) -> Result<(), Box<dyn std::error::Error>> {
     println!("  {:<24} {:.3}", "Periodicity (norm)", row.periodicity_norm);
     println!("  {:<24} {:.3}", "Volume (norm)", row.volume_norm);
     println!("  {:<24} {:.3}", "Length (norm)", row.length_norm);
-    println!("  {:<24} {:.3}", "Client Rarity (norm)", row.client_rarity_norm);
-    println!("  {:<24} {:.3}", "Subdomain Div (norm)", row.subdomain_diversity_norm);
+    println!(
+        "  {:<24} {:.3}",
+        "Client Rarity (norm)", row.client_rarity_norm
+    );
+    println!(
+        "  {:<24} {:.3}",
+        "Subdomain Div (norm)", row.subdomain_diversity_norm
+    );
     println!("\nRaw Features:");
     println!("  Entropy:    {:.3} bits", row.mean_entropy);
     println!("  CV:         {:.3}", row.cv);

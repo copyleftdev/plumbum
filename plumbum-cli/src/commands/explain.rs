@@ -1,8 +1,8 @@
-use std::path::Path;
-use plumbum_score::normalize::DomainFeatures;
-use plumbum_score::weights::Weights;
 use plumbum_score::composite::score_domain;
 use plumbum_score::explain;
+use plumbum_score::normalize::DomainFeatures;
+use plumbum_score::weights::Weights;
+use std::path::Path;
 
 pub fn run(domain: &str, _feature: Option<&str>) -> Result<(), Box<dyn std::error::Error>> {
     let plumbum_dir = Path::new(".plumbum");

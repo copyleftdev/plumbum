@@ -55,7 +55,11 @@ where
             continue;
         }
         if line.starts_with("#fields") {
-            field_names = line.split(separator).skip(1).map(|s| s.to_string()).collect();
+            field_names = line
+                .split(separator)
+                .skip(1)
+                .map(|s| s.to_string())
+                .collect();
             continue;
         }
         if line.starts_with('#') {
@@ -77,13 +81,20 @@ where
         let get = |name: &str| -> Option<&str> {
             field_names.iter().position(|n| n == name).and_then(|i| {
                 let val = fields.get(i).copied().unwrap_or(&unset_field);
-                if val == unset_field || val == empty_field { None } else { Some(val) }
+                if val == unset_field || val == empty_field {
+                    None
+                } else {
+                    Some(val)
+                }
             })
         };
 
         let timestamp = match get("ts").and_then(|v| v.parse::<f64>().ok()) {
             Some(ts) => ts,
-            None => { stats.errors += 1; continue; }
+            None => {
+                stats.errors += 1;
+                continue;
+            }
         };
 
         let src_ip = get("id.orig_h").unwrap_or("0.0.0.0").to_string();
@@ -94,7 +105,8 @@ where
         let trans_id = get("trans_id").and_then(|v| v.parse().ok()).unwrap_or(0);
         let query_name = get("query").unwrap_or("").to_string();
         let query_type_name = get("qtype_name").unwrap_or("").to_string();
-        let query_type = get("qtype").and_then(|v| v.parse().ok())
+        let query_type = get("qtype")
+            .and_then(|v| v.parse().ok())
             .unwrap_or_else(|| qtype_name_to_num(&query_type_name));
         let rcode = get("rcode").and_then(|v| v.parse().ok()).unwrap_or(0);
         let rcode_name = get("rcode_name").unwrap_or("NOERROR").to_string();
@@ -104,36 +116,47 @@ where
 
         // Parse answers: comma-separated values
         let answers = match get("answers") {
-            Some(ans_str) => {
-                ans_str.split(set_separator)
-                    .filter(|a| !a.is_empty())
-                    .map(|rdata| {
-                        DnsAnswer {
-                            rtype: query_type,
-                            rtype_name: query_type_name.clone(),
-                            rdata: rdata.to_string(),
-                            ttl: get("TTLs")
-                                .and_then(|t| t.split(set_separator).next())
-                                .and_then(|t| t.parse::<f64>().ok())
-                                .map(|t| t as u32)
-                                .unwrap_or(0),
-                        }
-                    })
-                    .collect()
-            }
+            Some(ans_str) => ans_str
+                .split(set_separator)
+                .filter(|a| !a.is_empty())
+                .map(|rdata| DnsAnswer {
+                    rtype: query_type,
+                    rtype_name: query_type_name.clone(),
+                    rdata: rdata.to_string(),
+                    ttl: get("TTLs")
+                        .and_then(|t| t.split(set_separator).next())
+                        .and_then(|t| t.parse::<f64>().ok())
+                        .map(|t| t as u32)
+                        .unwrap_or(0),
+                })
+                .collect(),
             None => Vec::new(),
         };
 
         let record = DnsRecord {
             timestamp,
-            src_ip, src_port, dst_ip, dst_port,
-            proto, trans_id, query_name, query_type, query_type_name,
-            rcode, rcode_name, is_response, answers,
+            src_ip,
+            src_port,
+            dst_ip,
+            dst_port,
+            proto,
+            trans_id,
+            query_name,
+            query_type,
+            query_type_name,
+            rcode,
+            rcode_name,
+            is_response,
+            answers,
         };
 
         stats.dns_records += 1;
-        if record.is_response { stats.responses += 1; }
-        if record.is_txt() { stats.txt_records += 1; }
+        if record.is_response {
+            stats.responses += 1;
+        }
+        if record.is_txt() {
+            stats.txt_records += 1;
+        }
 
         handler(record);
     }
@@ -144,8 +167,8 @@ where
 /// Parse Zeek's separator specification.
 /// Zeek encodes the separator as `\x09` for tab, etc.
 fn parse_separator_spec(spec: &str) -> char {
-    if spec.starts_with("\\x") {
-        if let Ok(byte) = u8::from_str_radix(&spec[2..], 16) {
+    if let Some(hex) = spec.strip_prefix("\\x") {
+        if let Ok(byte) = u8::from_str_radix(hex, 16) {
             return byte as char;
         }
     }

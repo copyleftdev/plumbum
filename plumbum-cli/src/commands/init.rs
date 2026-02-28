@@ -1,5 +1,5 @@
-use std::path::Path;
 use plumbum_config::defaults::DEFAULT_CONFIG_HCL;
+use std::path::Path;
 
 pub fn run() -> Result<(), Box<dyn std::error::Error>> {
     let plumbum_dir = Path::new(".plumbum");

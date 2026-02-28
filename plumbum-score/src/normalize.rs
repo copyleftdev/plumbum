@@ -47,10 +47,14 @@ impl CorpusStats {
     pub fn from_raw(features: &[RawFeatures]) -> Self {
         if features.is_empty() {
             return Self {
-                entropy_min: 0.0, entropy_max: 1.0,
-                cv_min: 0.0, cv_max: 1.0,
-                volume_max: 1.0, length_max: 1.0,
-                client_max: 1.0, subdomain_max: 1.0,
+                entropy_min: 0.0,
+                entropy_max: 1.0,
+                cv_min: 0.0,
+                cv_max: 1.0,
+                volume_max: 1.0,
+                length_max: 1.0,
+                client_max: 1.0,
+                subdomain_max: 1.0,
             };
         }
 
@@ -64,19 +68,37 @@ impl CorpusStats {
         let mut sub_max = 0usize;
 
         for f in features {
-            if f.mean_entropy < ent_min { ent_min = f.mean_entropy; }
-            if f.mean_entropy > ent_max { ent_max = f.mean_entropy; }
-            if f.cv < cv_min { cv_min = f.cv; }
-            if f.cv > cv_max { cv_max = f.cv; }
-            if f.query_count > vol_max { vol_max = f.query_count; }
-            if f.mean_txt_length > len_max { len_max = f.mean_txt_length; }
-            if f.client_count > cli_max { cli_max = f.client_count; }
-            if f.subdomain_count > sub_max { sub_max = f.subdomain_count; }
+            if f.mean_entropy < ent_min {
+                ent_min = f.mean_entropy;
+            }
+            if f.mean_entropy > ent_max {
+                ent_max = f.mean_entropy;
+            }
+            if f.cv < cv_min {
+                cv_min = f.cv;
+            }
+            if f.cv > cv_max {
+                cv_max = f.cv;
+            }
+            if f.query_count > vol_max {
+                vol_max = f.query_count;
+            }
+            if f.mean_txt_length > len_max {
+                len_max = f.mean_txt_length;
+            }
+            if f.client_count > cli_max {
+                cli_max = f.client_count;
+            }
+            if f.subdomain_count > sub_max {
+                sub_max = f.subdomain_count;
+            }
         }
 
         Self {
-            entropy_min: ent_min, entropy_max: ent_max,
-            cv_min, cv_max,
+            entropy_min: ent_min,
+            entropy_max: ent_max,
+            cv_min,
+            cv_max,
             volume_max: vol_max.max(1) as f64,
             length_max: len_max.max(1.0),
             client_max: cli_max.max(1) as f64,
@@ -88,12 +110,12 @@ impl CorpusStats {
 /// Normalize a single domain's raw features against corpus stats.
 pub fn normalize(raw: &RawFeatures, stats: &CorpusStats) -> DomainFeatures {
     let range_norm = |v: f64, min: f64, max: f64| -> f64 {
-        if (max - min).abs() < f64::EPSILON { return 0.0; }
+        if (max - min).abs() < f64::EPSILON {
+            return 0.0;
+        }
         ((v - min) / (max - min)).clamp(0.0, 1.0)
     };
-    let inv_norm = |v: f64, min: f64, max: f64| -> f64 {
-        1.0 - range_norm(v, min, max)
-    };
+    let inv_norm = |v: f64, min: f64, max: f64| -> f64 { 1.0 - range_norm(v, min, max) };
 
     DomainFeatures {
         domain: raw.domain.clone(),
@@ -114,15 +136,24 @@ mod tests {
     #[test]
     fn test_normalize_basic() {
         let raw = RawFeatures {
-            domain: "test.com".into(), is_c2: false,
-            mean_entropy: 5.0, cv: 0.5, query_count: 100,
-            mean_txt_length: 30.0, client_count: 10, subdomain_count: 5,
+            domain: "test.com".into(),
+            is_c2: false,
+            mean_entropy: 5.0,
+            cv: 0.5,
+            query_count: 100,
+            mean_txt_length: 30.0,
+            client_count: 10,
+            subdomain_count: 5,
         };
         let stats = CorpusStats {
-            entropy_min: 3.0, entropy_max: 7.0,
-            cv_min: 0.0, cv_max: 2.0,
-            volume_max: 200.0, length_max: 60.0,
-            client_max: 50.0, subdomain_max: 100.0,
+            entropy_min: 3.0,
+            entropy_max: 7.0,
+            cv_min: 0.0,
+            cv_max: 2.0,
+            volume_max: 200.0,
+            length_max: 60.0,
+            client_max: 50.0,
+            subdomain_max: 100.0,
         };
         let norm = normalize(&raw, &stats);
         assert!((norm.entropy_norm - 0.5).abs() < 0.01);

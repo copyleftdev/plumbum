@@ -23,7 +23,9 @@ pub fn run(paths: &[PathBuf]) -> Result<(), Box<dyn std::error::Error>> {
                 let mut txt = 0u64;
                 plumbum_core::pcap::parse_pcap(path, |rec| {
                     count += 1;
-                    if rec.query_type == 16 { txt += 1; }
+                    if rec.query_type == 16 {
+                        txt += 1;
+                    }
                 })?;
                 println!("  {} records parsed", count);
                 println!("  {} TXT records", txt);
@@ -33,7 +35,9 @@ pub fn run(paths: &[PathBuf]) -> Result<(), Box<dyn std::error::Error>> {
                 let mut txt = 0u64;
                 plumbum_core::zeek::parse_zeek_dns(path, |rec| {
                     count += 1;
-                    if rec.query_type == 16 { txt += 1; }
+                    if rec.query_type == 16 {
+                        txt += 1;
+                    }
                 })?;
                 println!("  {} records parsed", count);
                 println!("  {} TXT records", txt);

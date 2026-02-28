@@ -2,16 +2,6 @@
 
 use crate::types::*;
 
-impl Default for PlumbumConfig {
-    fn default() -> Self {
-        Self {
-            analysis: AnalysisConfig::default(),
-            thresholds: ThresholdConfig::default(),
-            input: InputConfig::default(),
-        }
-    }
-}
-
 impl Default for AnalysisConfig {
     fn default() -> Self {
         Self {
@@ -32,16 +22,6 @@ impl Default for ThresholdConfig {
             critical: 80.0,
             high: 60.0,
             medium: 40.0,
-        }
-    }
-}
-
-impl Default for InputConfig {
-    fn default() -> Self {
-        Self {
-            paths: Vec::new(),
-            c2_domains: Vec::new(),
-            format: None,
         }
     }
 }

@@ -78,7 +78,7 @@ pub fn init_db(conn: &Connection) -> Result<()> {
         CREATE INDEX IF NOT EXISTS idx_feat_domain ON domain_features(domain);
         CREATE INDEX IF NOT EXISTS idx_feat_run ON domain_features(run_id);
         CREATE INDEX IF NOT EXISTS idx_feat_score ON domain_features(composite_score);
-        "
+        ",
     )?;
 
     conn.execute(
@@ -111,7 +111,11 @@ mod tests {
         init_db(&conn).unwrap();
 
         let version: String = conn
-            .query_row("SELECT value FROM meta WHERE key='schema_version'", [], |r| r.get(0))
+            .query_row(
+                "SELECT value FROM meta WHERE key='schema_version'",
+                [],
+                |r| r.get(0),
+            )
             .unwrap();
         assert_eq!(version, "1");
     }

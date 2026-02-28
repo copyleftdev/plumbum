@@ -10,8 +10,8 @@ use std::path::Path;
 
 /// Parse a config file at the given path.
 pub fn parse_config_file(path: &Path) -> Result<PlumbumConfig, String> {
-    let content = std::fs::read_to_string(path)
-        .map_err(|e| format!("Failed to read config: {}", e))?;
+    let content =
+        std::fs::read_to_string(path).map_err(|e| format!("Failed to read config: {}", e))?;
     parse_config(&content)
 }
 
@@ -47,27 +47,43 @@ pub fn parse_config(input: &str) -> Result<PlumbumConfig, String> {
             let val = line[eq_pos + 1..].trim().trim_matches('"');
 
             match current_block.as_deref() {
-                Some("analysis") => {
-                    match key {
-                        "entropy_weight" => config.analysis.entropy_weight = parse_f64(val, line_num)?,
-                        "periodicity_weight" => config.analysis.periodicity_weight = parse_f64(val, line_num)?,
-                        "volume_weight" => config.analysis.volume_weight = parse_f64(val, line_num)?,
-                        "length_weight" => config.analysis.length_weight = parse_f64(val, line_num)?,
-                        "client_rarity_weight" => config.analysis.client_rarity_weight = parse_f64(val, line_num)?,
-                        "subdomain_diversity_weight" => config.analysis.subdomain_diversity_weight = parse_f64(val, line_num)?,
-                        "weight_preset" => config.analysis.weight_preset = Some(val.to_string()),
-                        _ => return Err(format!("Line {}: unknown analysis key '{}'", line_num + 1, key)),
+                Some("analysis") => match key {
+                    "entropy_weight" => config.analysis.entropy_weight = parse_f64(val, line_num)?,
+                    "periodicity_weight" => {
+                        config.analysis.periodicity_weight = parse_f64(val, line_num)?
                     }
-                }
-                Some("thresholds") => {
-                    match key {
-                        "critical" => config.thresholds.critical = parse_f64(val, line_num)?,
-                        "high" => config.thresholds.high = parse_f64(val, line_num)?,
-                        "medium" => config.thresholds.medium = parse_f64(val, line_num)?,
-                        _ => return Err(format!("Line {}: unknown thresholds key '{}'", line_num + 1, key)),
+                    "volume_weight" => config.analysis.volume_weight = parse_f64(val, line_num)?,
+                    "length_weight" => config.analysis.length_weight = parse_f64(val, line_num)?,
+                    "client_rarity_weight" => {
+                        config.analysis.client_rarity_weight = parse_f64(val, line_num)?
                     }
+                    "subdomain_diversity_weight" => {
+                        config.analysis.subdomain_diversity_weight = parse_f64(val, line_num)?
+                    }
+                    "weight_preset" => config.analysis.weight_preset = Some(val.to_string()),
+                    _ => {
+                        return Err(format!(
+                            "Line {}: unknown analysis key '{}'",
+                            line_num + 1,
+                            key
+                        ))
+                    }
+                },
+                Some("thresholds") => match key {
+                    "critical" => config.thresholds.critical = parse_f64(val, line_num)?,
+                    "high" => config.thresholds.high = parse_f64(val, line_num)?,
+                    "medium" => config.thresholds.medium = parse_f64(val, line_num)?,
+                    _ => {
+                        return Err(format!(
+                            "Line {}: unknown thresholds key '{}'",
+                            line_num + 1,
+                            key
+                        ))
+                    }
+                },
+                Some(block) => {
+                    return Err(format!("Line {}: unknown block '{}'", line_num + 1, block))
                 }
-                Some(block) => return Err(format!("Line {}: unknown block '{}'", line_num + 1, block)),
                 None => return Err(format!("Line {}: key-value outside block", line_num + 1)),
             }
         }
@@ -92,7 +108,10 @@ mod tests {
         assert!((config.thresholds.critical - 80.0).abs() < 0.01);
         assert!((config.thresholds.high - 60.0).abs() < 0.01);
         assert!((config.analysis.client_rarity_weight - 1.80).abs() < 0.01);
-        assert_eq!(config.analysis.weight_preset.as_deref(), Some("regularized"));
+        assert_eq!(
+            config.analysis.weight_preset.as_deref(),
+            Some("regularized")
+        );
     }
 
     #[test]

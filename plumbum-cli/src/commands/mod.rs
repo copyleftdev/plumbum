@@ -1,8 +1,8 @@
-pub mod init;
-pub mod validate;
-pub mod plan;
 pub mod apply;
-pub mod show;
+pub mod dashboard;
 pub mod explain;
 pub mod export;
-pub mod dashboard;
+pub mod init;
+pub mod plan;
+pub mod show;
+pub mod validate;

@@ -38,7 +38,11 @@ pub fn explain(scored: &ScoredDomain, weights: &Weights) -> Explanation {
             normalized: f.entropy_norm,
             weight: weights.entropy,
             contribution: f.entropy_norm * weights.entropy,
-            pct_of_total: if total > 0.0 { f.entropy_norm * weights.entropy / total * 100.0 } else { 0.0 },
+            pct_of_total: if total > 0.0 {
+                f.entropy_norm * weights.entropy / total * 100.0
+            } else {
+                0.0
+            },
         },
         FeatureExplanation {
             name: "periodicity",
@@ -46,7 +50,11 @@ pub fn explain(scored: &ScoredDomain, weights: &Weights) -> Explanation {
             normalized: f.periodicity_norm,
             weight: weights.periodicity,
             contribution: f.periodicity_norm * weights.periodicity,
-            pct_of_total: if total > 0.0 { f.periodicity_norm * weights.periodicity / total * 100.0 } else { 0.0 },
+            pct_of_total: if total > 0.0 {
+                f.periodicity_norm * weights.periodicity / total * 100.0
+            } else {
+                0.0
+            },
         },
         FeatureExplanation {
             name: "volume",
@@ -54,7 +62,11 @@ pub fn explain(scored: &ScoredDomain, weights: &Weights) -> Explanation {
             normalized: f.volume_norm,
             weight: weights.volume,
             contribution: f.volume_norm * weights.volume,
-            pct_of_total: if total > 0.0 { f.volume_norm * weights.volume / total * 100.0 } else { 0.0 },
+            pct_of_total: if total > 0.0 {
+                f.volume_norm * weights.volume / total * 100.0
+            } else {
+                0.0
+            },
         },
         FeatureExplanation {
             name: "length",
@@ -62,7 +74,11 @@ pub fn explain(scored: &ScoredDomain, weights: &Weights) -> Explanation {
             normalized: f.length_norm,
             weight: weights.length,
             contribution: f.length_norm * weights.length,
-            pct_of_total: if total > 0.0 { f.length_norm * weights.length / total * 100.0 } else { 0.0 },
+            pct_of_total: if total > 0.0 {
+                f.length_norm * weights.length / total * 100.0
+            } else {
+                0.0
+            },
         },
         FeatureExplanation {
             name: "client_rarity",
@@ -70,7 +86,11 @@ pub fn explain(scored: &ScoredDomain, weights: &Weights) -> Explanation {
             normalized: f.client_rarity_norm,
             weight: weights.client_rarity,
             contribution: f.client_rarity_norm * weights.client_rarity,
-            pct_of_total: if total > 0.0 { f.client_rarity_norm * weights.client_rarity / total * 100.0 } else { 0.0 },
+            pct_of_total: if total > 0.0 {
+                f.client_rarity_norm * weights.client_rarity / total * 100.0
+            } else {
+                0.0
+            },
         },
         FeatureExplanation {
             name: "subdomain_diversity",
@@ -78,7 +98,11 @@ pub fn explain(scored: &ScoredDomain, weights: &Weights) -> Explanation {
             normalized: f.subdomain_diversity_norm,
             weight: weights.subdomain_diversity,
             contribution: f.subdomain_diversity_norm * weights.subdomain_diversity,
-            pct_of_total: if total > 0.0 { f.subdomain_diversity_norm * weights.subdomain_diversity / total * 100.0 } else { 0.0 },
+            pct_of_total: if total > 0.0 {
+                f.subdomain_diversity_norm * weights.subdomain_diversity / total * 100.0
+            } else {
+                0.0
+            },
         },
     ];
 
@@ -94,7 +118,10 @@ pub fn explain(scored: &ScoredDomain, weights: &Weights) -> Explanation {
 pub fn format_explanation(expl: &Explanation) -> String {
     let mut out = String::new();
     out.push_str(&format!("Domain: {}\n", expl.domain));
-    out.push_str(&format!("Score:  {:.1} ({})\n\n", expl.score, expl.severity));
+    out.push_str(&format!(
+        "Score:  {:.1} ({})\n\n",
+        expl.score, expl.severity
+    ));
     out.push_str("Components:\n");
 
     for fe in &expl.features {

@@ -23,13 +23,19 @@ impl ScoreGauge {
         } else {
             Color::DarkGray
         };
-        Self { score, label: label.into(), fill_color }
+        Self {
+            score,
+            label: label.into(),
+            fill_color,
+        }
     }
 }
 
 impl Widget for ScoreGauge {
     fn render(self, area: Rect, buf: &mut Buffer) {
-        if area.width < 10 || area.height == 0 { return; }
+        if area.width < 10 || area.height == 0 {
+            return;
+        }
 
         let label_width = 8.min(area.width as usize);
         let bar_width = (area.width as usize).saturating_sub(label_width + 7);
@@ -40,11 +46,21 @@ impl Widget for ScoreGauge {
         } else {
             &self.label
         };
-        buf.set_string(area.x, area.y, label_display, Style::default().fg(Color::White));
+        buf.set_string(
+            area.x,
+            area.y,
+            label_display,
+            Style::default().fg(Color::White),
+        );
 
         // Score value
         let score_str = format!("{:5.1}", self.score);
-        buf.set_string(area.x + label_width as u16 + 1, area.y, &score_str, Style::default().fg(self.fill_color));
+        buf.set_string(
+            area.x + label_width as u16 + 1,
+            area.y,
+            &score_str,
+            Style::default().fg(self.fill_color),
+        );
 
         // Bar
         let bar_start = area.x + label_width as u16 + 7;
@@ -52,11 +68,17 @@ impl Widget for ScoreGauge {
 
         for i in 0..bar_width {
             let x = bar_start + i as u16;
-            if x >= area.x + area.width { break; }
+            if x >= area.x + area.width {
+                break;
+            }
             if i < filled {
-                buf[(x, area.y)].set_char('\u{2588}').set_fg(self.fill_color);
+                buf[(x, area.y)]
+                    .set_char('\u{2588}')
+                    .set_fg(self.fill_color);
             } else {
-                buf[(x, area.y)].set_char('\u{2591}').set_fg(Color::DarkGray);
+                buf[(x, area.y)]
+                    .set_char('\u{2591}')
+                    .set_fg(Color::DarkGray);
             }
         }
     }

@@ -6,8 +6,8 @@ use plumbum_core::features;
 use plumbum_score::composite;
 use plumbum_score::normalize::{self, CorpusStats, DomainFeatures, RawFeatures};
 use plumbum_score::weights::Weights;
-use plumbum_store::schema;
 use plumbum_store::ingest;
+use plumbum_store::schema;
 
 struct DomainAccum {
     timestamps: Vec<f64>,
@@ -29,7 +29,11 @@ pub fn run(
     }
 
     let conn = schema::open_db(plumbum_dir)?;
-    let sources_str = paths.iter().map(|p| p.display().to_string()).collect::<Vec<_>>().join(", ");
+    let sources_str = paths
+        .iter()
+        .map(|p| p.display().to_string())
+        .collect::<Vec<_>>()
+        .join(", ");
     let run_id = ingest::create_run(&conn, &sources_str)?;
 
     let c2_suffixes: Vec<String> = c2_domains.iter().map(|d| d.to_lowercase()).collect();
@@ -58,19 +62,25 @@ pub fn run(
 
         for rec in &batch {
             record_count += 1;
-            if rec.query_type == 16 { txt_count += 1; }
+            if rec.query_type == 16 {
+                txt_count += 1;
+            }
 
-            if !rec.is_response { continue; }
+            if !rec.is_response {
+                continue;
+            }
 
             let base = features::extract_base_domain(&rec.query_name, &c2_suffixes);
-            let acc = domain_map.entry(base.clone()).or_insert_with(|| DomainAccum {
-                timestamps: Vec::new(),
-                txt_contents: Vec::new(),
-                src_ips: HashSet::new(),
-                subdomains: HashSet::new(),
-                query_count: 0,
-                txt_lengths: Vec::new(),
-            });
+            let acc = domain_map
+                .entry(base.clone())
+                .or_insert_with(|| DomainAccum {
+                    timestamps: Vec::new(),
+                    txt_contents: Vec::new(),
+                    src_ips: HashSet::new(),
+                    subdomains: HashSet::new(),
+                    query_count: 0,
+                    txt_lengths: Vec::new(),
+                });
 
             acc.timestamps.push(rec.timestamp);
             acc.src_ips.insert(rec.src_ip.clone());
@@ -96,7 +106,9 @@ pub fn run(
         let mean_entropy = if acc.txt_contents.is_empty() {
             0.0
         } else {
-            let total: f64 = acc.txt_contents.iter()
+            let total: f64 = acc
+                .txt_contents
+                .iter()
                 .map(|t| features::shannon_entropy(t.as_bytes()))
                 .sum();
             total / acc.txt_contents.len() as f64
@@ -128,7 +140,8 @@ pub fn run(
 
     // Normalize and score
     let stats = CorpusStats::from_raw(&raw_features);
-    let norm_features: Vec<DomainFeatures> = raw_features.iter()
+    let norm_features: Vec<DomainFeatures> = raw_features
+        .iter()
         .map(|r| normalize::normalize(r, &stats))
         .collect();
 
@@ -152,15 +165,25 @@ pub fn run(
     println!("Plumbum Findings:\n");
     for sd in &scored {
         if sd.score >= 40.0 {
-            println!("{:<8}  {:5.1}  {}", sd.severity.as_str(), sd.score, sd.domain);
+            println!(
+                "{:<8}  {:5.1}  {}",
+                sd.severity.as_str(),
+                sd.score,
+                sd.domain
+            );
         }
     }
 
-    println!("\nArtifacts written to .plumbum/plumbum.db (run #{})", run_id);
+    println!(
+        "\nArtifacts written to .plumbum/plumbum.db (run #{})",
+        run_id
+    );
 
     let summary = plumbum_store::query::get_run_summary(&conn, run_id)?;
-    println!("\nSummary: {} domains scored, {} CRITICAL, {} HIGH, {} MEDIUM",
-        summary.domain_count, summary.critical_count, summary.high_count, summary.medium_count);
+    println!(
+        "\nSummary: {} domains scored, {} CRITICAL, {} HIGH, {} MEDIUM",
+        summary.domain_count, summary.critical_count, summary.high_count, summary.medium_count
+    );
 
     Ok(())
 }

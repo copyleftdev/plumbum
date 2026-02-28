@@ -1,5 +1,5 @@
-use std::path::PathBuf;
 use std::collections::HashSet;
+use std::path::PathBuf;
 
 pub fn run(paths: &[PathBuf]) -> Result<(), Box<dyn std::error::Error>> {
     let mut total_records = 0u64;
@@ -17,7 +17,9 @@ pub fn run(paths: &[PathBuf]) -> Result<(), Box<dyn std::error::Error>> {
 
         let handler = |rec: plumbum_core::dns::DnsRecord| {
             total_records += 1;
-            if rec.query_type == 16 { txt_records += 1; }
+            if rec.query_type == 16 {
+                txt_records += 1;
+            }
             domains.insert(rec.query_name.to_lowercase());
             src_ips.insert(rec.src_ip.clone());
         };

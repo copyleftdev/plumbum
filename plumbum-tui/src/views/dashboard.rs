@@ -6,20 +6,15 @@ use ratatui::text::{Line, Span};
 use ratatui::widgets::{Block, Borders, Paragraph, Row, Table};
 use ratatui::Frame;
 
-use plumbum_store::query::DomainScoreRow;
 use crate::theme::Theme;
+use plumbum_store::query::DomainScoreRow;
 
 /// Render the main dashboard view.
-pub fn render_dashboard(
-    f: &mut Frame,
-    area: Rect,
-    domains: &[DomainScoreRow],
-    run_id: i64,
-) {
+pub fn render_dashboard(f: &mut Frame, area: Rect, domains: &[DomainScoreRow], run_id: i64) {
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
-            Constraint::Length(3),  // header
+            Constraint::Length(3), // header
             Constraint::Min(10),   // domain table
             Constraint::Length(5), // summary stats
         ])
@@ -27,34 +22,48 @@ pub fn render_dashboard(
 
     // Header
     let header_text = Line::from(vec![
-        Span::styled("PLUMBUM", Style::default().fg(Color::White).add_modifier(Modifier::BOLD)),
+        Span::styled(
+            "PLUMBUM",
+            Style::default()
+                .fg(Color::White)
+                .add_modifier(Modifier::BOLD),
+        ),
         Span::raw("  "),
         Span::styled(
             format!("Run #{} | {} domains scored", run_id, domains.len()),
             Theme::label(),
         ),
     ]);
-    let header = Paragraph::new(header_text)
-        .block(Block::default().borders(Borders::BOTTOM).border_style(Theme::border()));
+    let header = Paragraph::new(header_text).block(
+        Block::default()
+            .borders(Borders::BOTTOM)
+            .border_style(Theme::border()),
+    );
     f.render_widget(header, chunks[0]);
 
     // Domain table
-    let header_row = Row::new(vec!["SEVERITY", "SCORE", "DOMAIN", "ENT", "CV", "QUERIES", "CLIENTS", "SUBDOMS"])
-        .style(Theme::header());
+    let header_row = Row::new(vec![
+        "SEVERITY", "SCORE", "DOMAIN", "ENT", "CV", "QUERIES", "CLIENTS", "SUBDOMS",
+    ])
+    .style(Theme::header());
 
-    let rows: Vec<Row> = domains.iter().map(|d| {
-        let style = Theme::severity_style(&d.severity);
-        Row::new(vec![
-            format!("{:^8}", d.severity),
-            format!("{:5.1}", d.composite_score),
-            d.domain.clone(),
-            format!("{:.2}", d.mean_entropy),
-            format!("{:.2}", d.cv),
-            format!("{}", d.query_count),
-            format!("{}", d.client_count),
-            format!("{}", d.subdomain_count),
-        ]).style(style)
-    }).collect();
+    let rows: Vec<Row> = domains
+        .iter()
+        .map(|d| {
+            let style = Theme::severity_style(&d.severity);
+            Row::new(vec![
+                format!("{:^8}", d.severity),
+                format!("{:5.1}", d.composite_score),
+                d.domain.clone(),
+                format!("{:.2}", d.mean_entropy),
+                format!("{:.2}", d.cv),
+                format!("{}", d.query_count),
+                format!("{}", d.client_count),
+                format!("{}", d.subdomain_count),
+            ])
+            .style(style)
+        })
+        .collect();
 
     let table = Table::new(
         rows,
@@ -70,7 +79,12 @@ pub fn render_dashboard(
         ],
     )
     .header(header_row)
-    .block(Block::default().title(" Findings ").borders(Borders::ALL).border_style(Theme::border()));
+    .block(
+        Block::default()
+            .title(" Findings ")
+            .borders(Borders::ALL)
+            .border_style(Theme::border()),
+    );
     f.render_widget(table, chunks[1]);
 
     // Summary
@@ -85,6 +99,11 @@ pub fn render_dashboard(
         Span::raw("  "),
         Span::styled(format!(" MEDIUM: {} ", medium), Theme::medium()),
     ]))
-    .block(Block::default().title(" Summary ").borders(Borders::ALL).border_style(Theme::border()));
+    .block(
+        Block::default()
+            .title(" Summary ")
+            .borders(Borders::ALL)
+            .border_style(Theme::border()),
+    );
     f.render_widget(summary, chunks[2]);
 }

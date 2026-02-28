@@ -1,6 +1,6 @@
 //! Prepared statement wrappers for reading analysis results.
 
-use rusqlite::{Connection, Result, params};
+use rusqlite::{params, Connection, Result};
 
 /// A domain score row from the database.
 #[derive(Debug, Clone)]
@@ -54,7 +54,11 @@ pub fn get_scored_domains(conn: &Connection, run_id: i64) -> Result<Vec<DomainSc
 }
 
 /// Get a single domain's score by name and run.
-pub fn get_domain_score(conn: &Connection, run_id: i64, domain: &str) -> Result<Option<DomainScoreRow>> {
+pub fn get_domain_score(
+    conn: &Connection,
+    run_id: i64,
+    domain: &str,
+) -> Result<Option<DomainScoreRow>> {
     let mut stmt = conn.prepare(
         "SELECT domain, composite_score, severity, is_c2, mean_entropy, cv, query_count, mean_txt_length, client_count, subdomain_count, entropy_norm, periodicity_norm, volume_norm, length_norm, client_rarity_norm, subdomain_diversity_norm FROM domain_features WHERE run_id=?1 AND domain=?2"
     )?;
@@ -89,11 +93,10 @@ pub fn get_domain_score(conn: &Connection, run_id: i64, domain: &str) -> Result<
 
 /// Get the latest run ID.
 pub fn get_latest_run(conn: &Connection) -> Result<Option<i64>> {
-    conn.query_row(
-        "SELECT id FROM runs ORDER BY id DESC LIMIT 1",
-        [],
-        |row| row.get(0),
-    ).optional()
+    conn.query_row("SELECT id FROM runs ORDER BY id DESC LIMIT 1", [], |row| {
+        row.get(0)
+    })
+    .optional()
 }
 
 /// Re-export optional helper.
@@ -125,27 +128,42 @@ pub struct RunSummary {
 
 /// Get summary statistics for a run.
 pub fn get_run_summary(conn: &Connection, run_id: i64) -> Result<RunSummary> {
-    let total_records: i64 = conn.query_row(
-        "SELECT record_count FROM runs WHERE id=?1", [run_id], |r| r.get(0)
-    )?;
-    let txt_records: i64 = conn.query_row(
-        "SELECT txt_count FROM runs WHERE id=?1", [run_id], |r| r.get(0)
-    )?;
+    let total_records: i64 =
+        conn.query_row("SELECT record_count FROM runs WHERE id=?1", [run_id], |r| {
+            r.get(0)
+        })?;
+    let txt_records: i64 =
+        conn.query_row("SELECT txt_count FROM runs WHERE id=?1", [run_id], |r| {
+            r.get(0)
+        })?;
     let domain_count: i64 = conn.query_row(
-        "SELECT COUNT(*) FROM domain_features WHERE run_id=?1", [run_id], |r| r.get(0)
+        "SELECT COUNT(*) FROM domain_features WHERE run_id=?1",
+        [run_id],
+        |r| r.get(0),
     )?;
     let critical_count: i64 = conn.query_row(
-        "SELECT COUNT(*) FROM domain_features WHERE run_id=?1 AND severity='CRITICAL'", [run_id], |r| r.get(0)
+        "SELECT COUNT(*) FROM domain_features WHERE run_id=?1 AND severity='CRITICAL'",
+        [run_id],
+        |r| r.get(0),
     )?;
     let high_count: i64 = conn.query_row(
-        "SELECT COUNT(*) FROM domain_features WHERE run_id=?1 AND severity='HIGH'", [run_id], |r| r.get(0)
+        "SELECT COUNT(*) FROM domain_features WHERE run_id=?1 AND severity='HIGH'",
+        [run_id],
+        |r| r.get(0),
     )?;
     let medium_count: i64 = conn.query_row(
-        "SELECT COUNT(*) FROM domain_features WHERE run_id=?1 AND severity='MEDIUM'", [run_id], |r| r.get(0)
+        "SELECT COUNT(*) FROM domain_features WHERE run_id=?1 AND severity='MEDIUM'",
+        [run_id],
+        |r| r.get(0),
     )?;
 
     Ok(RunSummary {
-        run_id, total_records, txt_records, domain_count,
-        critical_count, high_count, medium_count,
+        run_id,
+        total_records,
+        txt_records,
+        domain_count,
+        critical_count,
+        high_count,
+        medium_count,
     })
 }

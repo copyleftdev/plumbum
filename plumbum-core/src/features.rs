@@ -90,7 +90,7 @@ pub fn compute_beacon_features(timestamps: &mut [f64]) -> Option<BeaconFeatures>
 
     let mut sorted_iats = iats.clone();
     sorted_iats.sort_by(|a, b| a.partial_cmp(b).unwrap());
-    let median = if sorted_iats.len() % 2 == 0 {
+    let median = if sorted_iats.len().is_multiple_of(2) {
         (sorted_iats[sorted_iats.len() / 2 - 1] + sorted_iats[sorted_iats.len() / 2]) / 2.0
     } else {
         sorted_iats[sorted_iats.len() / 2]
@@ -201,7 +201,11 @@ mod tests {
     fn test_entropy_uniform() {
         let data: Vec<u8> = (0..=255).collect();
         let ent = shannon_entropy(&data);
-        assert!((ent - 8.0).abs() < 0.01, "uniform bytes should be ~8.0 bits, got {}", ent);
+        assert!(
+            (ent - 8.0).abs() < 0.01,
+            "uniform bytes should be ~8.0 bits, got {}",
+            ent
+        );
     }
 
     #[test]
@@ -214,7 +218,11 @@ mod tests {
     fn test_beacon_features_regular() {
         let mut ts: Vec<f64> = (0..100).map(|i| i as f64 * 10.0).collect();
         let bf = compute_beacon_features(&mut ts).unwrap();
-        assert!(bf.cv < 0.01, "perfectly regular should have CV~0, got {}", bf.cv);
+        assert!(
+            bf.cv < 0.01,
+            "perfectly regular should have CV~0, got {}",
+            bf.cv
+        );
         assert!((bf.mean_iat - 10.0).abs() < 0.1);
     }
 
@@ -236,14 +244,23 @@ mod tests {
     fn test_extract_base_domain_c2() {
         let suffixes = vec!["evil.com".to_string()];
         assert_eq!(extract_base_domain("sub.evil.com", &suffixes), "evil.com");
-        assert_eq!(extract_base_domain("deep.sub.evil.com", &suffixes), "evil.com");
+        assert_eq!(
+            extract_base_domain("deep.sub.evil.com", &suffixes),
+            "evil.com"
+        );
         assert_eq!(extract_base_domain("evil.com", &suffixes), "evil.com");
     }
 
     #[test]
     fn test_extract_base_domain_unknown() {
         let suffixes: Vec<String> = vec![];
-        assert_eq!(extract_base_domain("www.google.com", &suffixes), "google.com");
-        assert_eq!(extract_base_domain("sub.example.co.uk", &suffixes), "example.co.uk");
+        assert_eq!(
+            extract_base_domain("www.google.com", &suffixes),
+            "google.com"
+        );
+        assert_eq!(
+            extract_base_domain("sub.example.co.uk", &suffixes),
+            "example.co.uk"
+        );
     }
 }

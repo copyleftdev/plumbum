@@ -1,14 +1,16 @@
 //! TUI application state machine and event loop.
 
-use std::io;
 use crossterm::event::{self, Event, KeyCode, KeyEventKind};
-use crossterm::terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen};
 use crossterm::execute;
+use crossterm::terminal::{
+    disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen,
+};
 use ratatui::backend::CrosstermBackend;
 use ratatui::Terminal;
+use std::io;
 
-use plumbum_store::query::DomainScoreRow;
 use crate::views::dashboard;
+use plumbum_store::query::DomainScoreRow;
 
 /// Application state.
 pub struct App {
@@ -19,7 +21,11 @@ pub struct App {
 
 impl App {
     pub fn new(domains: Vec<DomainScoreRow>, run_id: i64) -> Self {
-        Self { domains, run_id, should_quit: false }
+        Self {
+            domains,
+            run_id,
+            should_quit: false,
+        }
     }
 
     /// Run the TUI event loop.
