@@ -1,0 +1,12 @@
+[package]
+name = "plumbum-stream"
+version.workspace = true
+edition.workspace = true
+description = "Live network capture and real-time DNS anomaly scoring for Plumbum"
+
+[dependencies]
+plumbum-core = { path = "../plumbum-core" }
+plumbum-score = { path = "../plumbum-score" }
+pcap = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

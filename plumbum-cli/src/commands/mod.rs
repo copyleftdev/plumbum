@@ -5,4 +5,5 @@ pub mod export;
 pub mod init;
 pub mod plan;
 pub mod show;
+pub mod stream;
 pub mod validate;

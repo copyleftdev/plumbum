@@ -293,7 +293,7 @@ fn update_stats(record: &DnsRecord, stats: &mut ParseStats) {
     }
 }
 
-fn parse_packet(data: &[u8], timestamp: f64) -> Option<DnsRecord> {
+pub fn parse_packet(data: &[u8], timestamp: f64) -> Option<DnsRecord> {
     if data.len() < ETH_HEADER_LEN {
         return None;
     }
@@ -306,7 +306,7 @@ fn parse_packet(data: &[u8], timestamp: f64) -> Option<DnsRecord> {
 
 /// Parse a Linux cooked capture (SLL, link type 113) packet.
 /// SLL header: 2 pkt_type + 2 ARPHRD + 2 addr_len + 8 addr + 2 protocol = 16 bytes
-fn parse_sll_packet(data: &[u8], timestamp: f64) -> Option<DnsRecord> {
+pub fn parse_sll_packet(data: &[u8], timestamp: f64) -> Option<DnsRecord> {
     if data.len() < SLL_HEADER_LEN {
         return None;
     }
@@ -317,7 +317,7 @@ fn parse_sll_packet(data: &[u8], timestamp: f64) -> Option<DnsRecord> {
     parse_ipv4_dns(&data[SLL_HEADER_LEN..], timestamp)
 }
 
-fn parse_ipv4_dns(data: &[u8], timestamp: f64) -> Option<DnsRecord> {
+pub fn parse_ipv4_dns(data: &[u8], timestamp: f64) -> Option<DnsRecord> {
     if data.len() < 20 {
         return None;
     }

@@ -10,7 +10,7 @@ It does not alert. It explains.
 [![Rust](https://img.shields.io/badge/rust-1.70%2B-orange?logo=rust&logoColor=white)](https://www.rust-lang.org)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Build](https://img.shields.io/badge/build-passing-brightgreen)](#install)
-[![Crates](https://img.shields.io/badge/crates-7-8B5CF6)](#architecture)
+[![Crates](https://img.shields.io/badge/crates-8-8B5CF6)](#architecture)
 
 </div>
 
@@ -42,6 +42,7 @@ plumbum show evil.tk                            # inspect a domain
 plumbum explain evil.tk                         # score decomposition
 plumbum export --format json                    # export findings
 plumbum dashboard                               # interactive TUI
+plumbum stream -i eth0                          # live capture + scoring
 ```
 
 <details>
@@ -84,6 +85,7 @@ Components:
 | `explain` | Detailed score decomposition with per-feature contributions |
 | `export` | Export as JSON, CSV, or Sigma rule |
 | `dashboard` | Interactive TUI dashboard |
+| `stream` | Live capture DNS from a network interface and score in real time |
 | `version` | Print version |
 
 ## Scoring Model
@@ -167,12 +169,12 @@ plumbum-mcp
 ```text
 ┌─────────────────────────────────────────────────────────┐
 │                      plumbum-cli                        │
-│              init validate plan apply                   │
-│            show explain export dashboard                │
+│         init validate plan apply stream                  │
+│            show explain export dashboard                 │
 ├────────────┬────────────┬───────────────┬───────────────┤
-│plumbum-tui │plumbum-mcp │ plumbum-config│               │
-│  ratatui   │ stdio rpc  │  HCL parser   │               │
-├────────────┴────────────┴───────────────┤               │
+│plumbum-tui │plumbum-mcp │plumbum-config │plumbum-stream │
+│  ratatui   │ stdio rpc  │  HCL parser   │ live capture  │
+├────────────┴────────────┴───────────────┴───────────────┤
 │            plumbum-store                │ plumbum-score  │
 │    SQLite · WAL · batch ingest          │  weights       │
 │    schema · queries · artifacts         │  normalize     │
@@ -193,6 +195,31 @@ plumbum-mcp
 | [`plumbum-cli`](plumbum-cli/) | CLI binary (`plumbum`) |
 | [`plumbum-tui`](plumbum-tui/) | Interactive dashboard with ratatui |
 | [`plumbum-mcp`](plumbum-mcp/) | MCP server binary (`plumbum-mcp`) |
+| [`plumbum-stream`](plumbum-stream/) | Live network capture, sliding window accumulator, real-time scoring |
+
+## Live Streaming
+
+Capture DNS traffic directly from a network interface and score domains in real time:
+
+```sh
+# Stream from eth0, 60s windows, alert on score >= 40
+sudo plumbum stream -i eth0 --window 60 --threshold 40
+
+# List available interfaces
+plumbum stream --list-interfaces
+
+# Pipe to jq for filtering
+sudo plumbum stream -i any | jq 'select(.severity == "CRITICAL")'
+```
+
+Output is newline-delimited JSON — one alert per domain per window:
+
+```json
+{"domain":"evil.tk","score":94.4,"severity":"CRITICAL","query_count":1847,"client_count":1,"subdomain_count":1234,"mean_entropy":4.21,"cv":1.80,"mean_txt_length":189.0,"window_secs":60.0,"is_c2":true}
+```
+
+> **Requires:** `libpcap-dev` (Linux), Npcap (Windows), built-in on macOS.\
+> **Privileges:** root or `CAP_NET_RAW` for raw socket access.
 
 ## License
 

@@ -83,6 +83,33 @@ enum Commands {
     /// Launch interactive TUI dashboard
     Dashboard,
 
+    /// Live capture DNS from a network interface and score in real time
+    Stream {
+        /// Network interface (e.g., eth0, en0)
+        #[arg(short, long, default_value = "any")]
+        interface: String,
+
+        /// Sliding window duration in seconds
+        #[arg(short, long, default_value = "60")]
+        window: f64,
+
+        /// Minimum score to emit an alert (0-100)
+        #[arg(short, long, default_value = "40")]
+        threshold: f64,
+
+        /// Weight preset: default, optimized, regularized
+        #[arg(long, default_value = "regularized")]
+        weights: String,
+
+        /// Known C2 domains for labeling
+        #[arg(long)]
+        c2_domains: Vec<String>,
+
+        /// List available interfaces and exit
+        #[arg(long)]
+        list_interfaces: bool,
+    },
+
     /// Print version information
     Version,
 }
@@ -105,6 +132,21 @@ fn main() {
         }
         Commands::Export { format, output } => commands::export::run(&format, output.as_deref()),
         Commands::Dashboard => commands::dashboard::run(),
+        Commands::Stream {
+            interface,
+            window,
+            threshold,
+            weights,
+            c2_domains,
+            list_interfaces,
+        } => commands::stream::run(
+            &interface,
+            window,
+            threshold,
+            &weights,
+            &c2_domains,
+            list_interfaces,
+        ),
         Commands::Version => {
             println!("plumbum {}", env!("CARGO_PKG_VERSION"));
             Ok(())

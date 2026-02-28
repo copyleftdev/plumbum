@@ -8,6 +8,7 @@ members = [
     "plumbum-cli",
     "plumbum-tui",
     "plumbum-mcp",
+    "plumbum-stream",
 ]
 
 [workspace.package]
